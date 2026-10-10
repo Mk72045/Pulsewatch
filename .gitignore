@@ -1,0 +1,12 @@
+# Dependencies are installed locally and must not be committed.
+node_modules/
+
+# Real environment files hold secrets. Example files stay in git.
+.env
+
+
+# Runtime output
+logs/
+dist/
+coverage/
+*.log

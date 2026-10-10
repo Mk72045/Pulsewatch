@@ -1,0 +1,36 @@
+# services:
+#   mongodb:
+#     image: mongo:8.0
+#     container_name: cloudops-mongodb
+#     ports:
+#       # Host port 27017 is the usual local MongoDB port.
+#       - "27017:27017"
+#     volumes:
+#       # Named volume keeps data after the container is removed.
+#       - mongodb_data:/data/db
+#     healthcheck:
+#       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+#     restart: unless-stopped
+
+#   redis:
+#     image: redis:8.10.2-alpine
+#     container_name: cloudops-redis
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - redis_data:/data
+#     # AOF writes every change to disk so a restart does not wipe the queue.
+#     command: ["redis-server", "--appendonly", "yes"]
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+#     restart: unless-stopped
+
+# volumes:
+#   mongodb_data:
+#   redis_data:
