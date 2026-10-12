@@ -3,6 +3,7 @@ import { connectDB, disconnectDB } from "./config/db.js";
 import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
 import { connectRedis, disconnectRedis } from "./config/redis.js";
+import { checkQueue } from "./queues/checkQueue.js";
 
 let server;
 let shuttingDown = false;
@@ -33,6 +34,10 @@ async function shutdown(signal) {
           resolve();
         });
       });
+    }
+
+    if (checkQueue) {
+      await checkQueue.close();
     }
 
     await disconnectRedis();

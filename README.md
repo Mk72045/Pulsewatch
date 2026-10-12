@@ -3,9 +3,10 @@
 Uptime and API monitoring SaaS. This repository is the foundation only:
 folder layout, linting, formatting, and a MongoDB Atlas connection.
 
-The API can start and answer `GET /api/v1/health`.
-The background worker, tests, and React app are not built yet.
-
+The API answers `GET /api/v1/health`.
+A separate worker process reads test jobs from Redis.
+Tests and the React app are not built yet.
+    
 ## Requirements
 
 - Node.js 20.19 or newer (needed by ESLint 10)
@@ -36,7 +37,29 @@ Put your Atlas connection string in `MONGO_URI`. On macOS or Linux, use `cp .env
 
 Open `http://localhost:5000/api/v1/health`. A healthy response has `"success": true`, MongoDB `"connected"`, and Redis `"disabled"` until `REDIS_URL` is set.
 
-`npm run dev` uses Node's built-in `--watch`, so the process restarts when you save a file. `npm start` runs it once, without watching.
+`npm start` runs the API once, without watching.
+
+## Prove the queue
+
+Use two terminals. Redis must be set in `REDIS_URL` (Upstash is fine).
+
+```bash
+cd backend
+npm run dev
+```
+
+```bash
+cd backend
+npm run dev:worker
+```
+
+Then add one test job:
+
+```bash
+curl -X POST http://localhost:5000/api/v1/checks/test
+```
+
+The API responds with a job id. The worker terminal prints `Processing job <id>`.
 
 ## Lint and format
 

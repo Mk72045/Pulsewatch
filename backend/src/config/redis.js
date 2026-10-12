@@ -14,7 +14,9 @@ export async function connectRedis() {
   const client = new Redis(env.REDIS_URL, {
     lazyConnect: true,
     maxRetriesPerRequest: null,
-    connectTimeout: 5000,
+    connectTimeout: 8000,
+    // Upstash blocks the INFO command ioredis uses to decide "ready".
+    enableReadyCheck: false,
     retryStrategy(times) {
       if (times > 3) {
         return null;
@@ -38,6 +40,20 @@ export async function connectRedis() {
     redis = null;
     logger.warn({ err: error }, "Redis unavailable; continuing without it");
   }
+}
+
+// BullMQ opens its own connections. It must not share the health-check client.
+// The worker waits forever on Redis. The API should fail a request quickly.
+export function bullmqConnection(role) {
+  if (!env.REDIS_URL) {
+    return null;
+  }
+
+  return {
+    url: env.REDIS_URL,
+    maxRetriesPerRequest: role === "worker" ? null : 1,
+    enableReadyCheck: false,
+  };
 }
 
 export async function disconnectRedis() {
