@@ -11,8 +11,18 @@ export function errorHandler(error, req, res, next) {
   }
 
   const isApiError = error instanceof ApiError;
-  const statusCode = isApiError ? error.statusCode : 500;
-  const message = isApiError ? error.message : "Internal server error";
+  let statusCode = 500;
+  let message = "Internal server error";
+
+  if (isApiError) {
+    statusCode = error.statusCode;
+    message = error.message;
+  } else if (error.type?.startsWith("entity.")) {
+    // express.json() errors: broken JSON (400) or body over the size limit (413).
+    statusCode = error.status;
+    message =
+      error.status === 413 ? "Request body too large" : "Invalid JSON body";
+  }
 
   if (statusCode >= 500) {
     logger.error({ err: error }, "Request failed");

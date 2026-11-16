@@ -7,6 +7,7 @@ import { notFound } from "./middlewares/notFound.js";
 import { rateLimiter } from "./middlewares/rateLimiter.js";
 import { requestLogger } from "./middlewares/requestLogger.js";
 import { apiRouter } from "./routes/index.js";
+import cookieParser from "cookie-parser";
 
 // This file builds the app. It does not listen on a port.
 // Tests can import `app` without starting a real server.
@@ -19,11 +20,13 @@ app.use(helmet());
 app.use(
   cors({
     origin: env.CLIENT_URL,
+    credentials: true,
   }),
 );
 
 // Reject huge JSON bodies early. 16kb is enough for this API.
 app.use(express.json({ limit: "16kb" }));
+app.use(cookieParser());
 
 app.use(requestLogger);
 app.use(rateLimiter);

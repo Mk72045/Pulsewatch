@@ -22,6 +22,10 @@ worker.on("failed", (job, error) => {
   logger.error({ err: error, jobId: job?.id }, "Job failed");
 });
 
+worker.on("error", (error) => {
+  logger.error({ err: error }, "Worker error");
+});
+
 async function shutdown(signal) {
   logger.info({ signal }, "Worker shutting down");
   await worker.close();

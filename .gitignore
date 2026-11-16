@@ -10,3 +10,6 @@ logs/
 dist/
 coverage/
 *.log
+
+
+cookies.txt
