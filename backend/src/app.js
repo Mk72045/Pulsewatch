@@ -1,13 +1,14 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { notFound } from "./middlewares/notFound.js";
 import { rateLimiter } from "./middlewares/rateLimiter.js";
 import { requestLogger } from "./middlewares/requestLogger.js";
 import { apiRouter } from "./routes/index.js";
-import cookieParser from "cookie-parser";
+
 
 // This file builds the app. It does not listen on a port.
 // Tests can import `app` without starting a real server.

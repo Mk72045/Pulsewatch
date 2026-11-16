@@ -1,8 +1,7 @@
 import { loginUser, registerUser } from "../services/auth.service.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
 import { COOKIE_NAME, cookieOptions, signToken } from "../utils/authToken.js";
 
-export const register = asyncHandler(async (req, res) => {
+export const register = async (req, res) => {
   const user = await registerUser(req.body);
 
   res.cookie(COOKIE_NAME, signToken(user.id), cookieOptions);
@@ -11,9 +10,9 @@ export const register = asyncHandler(async (req, res) => {
     message: "Account created",
     data: { user },
   });
-});
+};
 
-export const login = asyncHandler(async (req, res) => {
+export const login = async (req, res) => {
   const user = await loginUser(req.body);
 
   res.cookie(COOKIE_NAME, signToken(user.id), cookieOptions);
@@ -22,7 +21,7 @@ export const login = asyncHandler(async (req, res) => {
     message: "Logged in",
     data: { user },
   });
-});
+};
 
 // requireAuth has already put the user on req.
 export const me = (req, res) => {
