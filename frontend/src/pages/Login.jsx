@@ -2,14 +2,12 @@ import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import FormField from "../components/FormField.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { parseApiError } from "../utils/parseApiError.js";
-
-const noError = { message: "", fields: {} };
+import { handleApi } from "../utils/handleApi.js";
 
 export default function Login() {
   const { user, login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState(noError);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   if (user) {
@@ -28,26 +26,23 @@ export default function Login() {
       return;
     }
 
-    setError(noError);
+    setFieldErrors({});
     setSubmitting(true);
 
-    try {
-      await login(form);
-    } catch (err) {
-      setError(parseApiError(err));
-      setSubmitting(false);
+    const result = await handleApi(() => login(form), {
+      success: "Logged in successfully",
+    });
+
+    setSubmitting(false);
+
+    if (!result.ok) {
+      setFieldErrors(result.error.fields);
     }
   }
 
   return (
     <section className="mx-auto max-w-sm">
       <h1 className="text-2xl font-semibold">Log in</h1>
-
-      {error.message ? (
-        <p role="alert" className="mt-4 text-sm text-red-600">
-          {error.message}
-        </p>
-      ) : null}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <FormField
@@ -58,7 +53,7 @@ export default function Login() {
           required
           value={form.email}
           onChange={handleChange}
-          error={error.fields.email}
+          error={fieldErrors.email}
         />
         <FormField
           id="password"
@@ -68,7 +63,7 @@ export default function Login() {
           required
           value={form.password}
           onChange={handleChange}
-          error={error.fields.password}
+          error={fieldErrors.password}
         />
         <button
           type="submit"

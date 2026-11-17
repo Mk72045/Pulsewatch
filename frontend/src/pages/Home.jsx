@@ -23,15 +23,15 @@ export default function Home() {
         This page asks the API if the server, MongoDB, and Redis are up.
       </p>
 
-      {error ? <p className="mt-6 text-red-600">{error}</p> : null}
+      {error && <p className="mt-6 text-red-600">{error}</p>}
 
       {!health && !error ? <p className="mt-6">Loading...</p> : null}
 
-      {health ? (
+      {health && (
         <pre className="mt-6 overflow-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100">
           {JSON.stringify(health, null, 2)}
         </pre>
-      ) : null}
+      )}
     </section>
   );
 }

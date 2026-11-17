@@ -5,6 +5,7 @@ import {
   logoutUser,
   registerUser,
 } from "../services/authService.js";
+import { handleApi } from "../utils/handleApi.js";
 
 const AuthContext = createContext(null);
 
@@ -15,10 +16,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCurrentUser()
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    // Being logged out gives a normal 401 here, so no error toast is wanted.
+    async function checkSession() {
+      const result = await handleApi(fetchCurrentUser, { showError: false });
+
+      setUser(result.ok ? result.data : null);
+      setLoading(false);
+    }
+
+    checkSession();
   }, []);
 
   async function register(data) {
@@ -30,11 +36,7 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
-    try {
-      await logoutUser();
-    } catch {
-      // The cookie may still be there. The next /auth/me check shows the truth.
-    }
+    await logoutUser();
     setUser(null);
   }
 

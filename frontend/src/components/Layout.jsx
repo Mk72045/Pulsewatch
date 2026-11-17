@@ -1,5 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { handleApi } from "../utils/handleApi.js";
 
 // Shared frame for every page. Outlet is where the matched page is drawn.
 export default function Layout() {
@@ -7,8 +8,13 @@ export default function Layout() {
   const navigate = useNavigate();
 
   async function handleLogout() {
-    await logout();
-    navigate("/login");
+    const result = await handleApi(logout, {
+      success: "Logged out successfully",
+    });
+
+    if (result.ok) {
+      navigate("/login");
+    }
   }
 
   return (
