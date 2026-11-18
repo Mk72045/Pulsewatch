@@ -1,4 +1,4 @@
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { parseApiError } from "./parseApiError.js";
 
 // Runs an API call so that pages never need their own try/catch.
