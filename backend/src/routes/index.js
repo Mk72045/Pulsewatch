@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkRouter } from "./check.routes.js";
+
 import { healthRouter } from "./health.routes.js";
 import { authRouter } from "./auth.routes.js";
 
@@ -7,5 +7,4 @@ import { authRouter } from "./auth.routes.js";
 export const apiRouter = Router();
 
 apiRouter.use("/health", healthRouter);
-apiRouter.use("/checks", checkRouter);
 apiRouter.use("/auth", authRouter);

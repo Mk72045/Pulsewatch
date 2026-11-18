@@ -16,7 +16,6 @@ export const rateLimiter = rateLimit({
   },
 });
 
-
 // Stricter limit for login and register, to slow down password guessing.
 // Only failed attempts count, so a real user who logs in fine is never blocked.
 export const authLimiter = rateLimit({

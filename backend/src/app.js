@@ -9,7 +9,6 @@ import { rateLimiter } from "./middlewares/rateLimiter.js";
 import { requestLogger } from "./middlewares/requestLogger.js";
 import { apiRouter } from "./routes/index.js";
 
-
 // This file builds the app. It does not listen on a port.
 // Tests can import `app` without starting a real server.
 const app = express();

@@ -8,8 +8,17 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const authRouter = Router();
 
-authRouter.post("/register", authLimiter, validate(registerSchema), asyncHandler(register));
-authRouter.post("/login", authLimiter, validate(loginSchema), asyncHandler(login));
+authRouter.post(
+  "/register",
+  authLimiter,
+  validate(registerSchema),
+  asyncHandler(register),
+);
+authRouter.post(
+  "/login",
+  authLimiter,
+  validate(loginSchema),
+  asyncHandler(login),
+);
 authRouter.post("/logout", logout);
 authRouter.get("/me", requireAuth, me);
-
