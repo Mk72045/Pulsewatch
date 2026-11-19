@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { z } from "zod";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const envSchema = z.object({
   NODE_ENV: z
@@ -18,9 +18,14 @@ const envSchema = z.object({
 
   JWT_SECRET: z.string().min(32),
 
-  RATE_LIMIT_TIME: z.string().default(15),
+  RATE_LIMIT_TIME: z.coerce.number().int().min(1).default(15),
 
   JWT_EXPIRES_DAYS: z.coerce.number().int().min(1).max(30).default(7),
+
+  MAX_MONITORS_PER_USER: z.coerce.number().int().min(1),
+
+  // How long one URL check may take before it counts as failed.
+  CHECK_TIMEOUT_MS: z.coerce.number().int().min(1000).max(30000).default(10000),
 });
 
 const result = envSchema.safeParse(process.env);
