@@ -26,6 +26,9 @@ const envSchema = z.object({
 
   // How long one URL check may take before it counts as failed.
   CHECK_TIMEOUT_MS: z.coerce.number().int().min(1000).max(30000).default(10000),
+
+  // How often the scheduler looks for monitors that are due for a check.
+  SCHEDULER_TICK_SECONDS: z.coerce.number().int().min(5).max(300).default(15),
 });
 
 const result = envSchema.safeParse(process.env);

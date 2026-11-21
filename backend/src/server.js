@@ -4,6 +4,7 @@ import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
 import { connectRedis, disconnectRedis } from "./config/redis.js";
 import { checkQueue } from "./queues/checkQueue.js";
+import { startScheduler, stopScheduler } from "./services/scheduler.service.js";
 
 let server;
 let shuttingDown = false;
@@ -36,6 +37,9 @@ async function shutdown(signal) {
       });
     }
 
+    // Stop starting new checks and let a running one finish before the database closes.
+    await stopScheduler();
+
     if (checkQueue) {
       await checkQueue.close();
     }
@@ -56,6 +60,8 @@ async function start() {
   server = app.listen(env.PORT, () => {
     logger.info(`Server listening on port ${env.PORT}`);
   });
+
+  startScheduler();
 }
 
 process.on("SIGINT", () => {

@@ -1,8 +1,19 @@
 import { MAX_MONITORS_PER_USER } from "../config/constants.js";
 import { Monitor } from "../models/monitor.model.js";
 import { ApiError } from "../utils/ApiError.js";
+import { CheckResult } from "../models/checkResult.model.js";
 
 const objectIdPattern = /^[a-f\d]{24}$/i;
+
+// The check data of a monitor that has not been checked yet.
+const freshCheckState = () => ({
+  status: "pending",
+  lastCheckedAt: null,
+  lastResponseTimeMs: null,
+  lastStatusCode: null,
+  lastError: null,
+  nextCheckAt: new Date(),
+});
 
 // The one way to load a single monitor. It always filters by owner, so a user
 // can never reach someone else's monitor, even with the right id.
@@ -50,8 +61,15 @@ export async function createMonitor(userId, data) {
 
 export async function updateMonitor(userId, id, data) {
   const monitor = await findOwnedMonitor(userId, id);
+  const urlChanged = data.url !== undefined && data.url !== monitor.url;
+  const resumed = data.isActive === true && !monitor.isActive;
 
   monitor.set(data);
+
+  // A new URL or a resumed monitor starts from scratch and is checked soon.
+  if (urlChanged || resumed) {
+    monitor.set(freshCheckState());
+  }
 
   try {
     await monitor.save();
@@ -70,4 +88,7 @@ export async function deleteMonitor(userId, id) {
   const monitor = await findOwnedMonitor(userId, id);
 
   await monitor.deleteOne();
+
+  // The history of a deleted monitor is of no use, so remove it too.
+  await CheckResult.deleteMany({ monitor: monitor._id });
 }
