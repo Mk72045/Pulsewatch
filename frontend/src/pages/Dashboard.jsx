@@ -15,6 +15,9 @@ import { handleApi } from "../utils/handleApi.js";
 const primaryButton =
   "rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700";
 
+// How often the list is refreshed in the background, so new check results show up.
+const REFRESH_SECONDS = 30;
+
 export default function Dashboard() {
   const { user } = useAuth();
   const confirmAction = useConfirm();
@@ -43,6 +46,29 @@ export default function Dashboard() {
 
     load();
   }, [reloadKey]);
+
+  // Refresh the list now and then, so new check results appear without a reload.
+  useEffect(() => {
+    if (status !== "ready") {
+      return;
+    }
+
+    const timer = setInterval(async () => {
+      // No need to ask the server while the tab is hidden.
+      if (document.hidden) {
+        return;
+      }
+
+      const result = await handleApi(fetchMonitors, { showError: false });
+
+      if (result.ok) {
+        setMonitors(result.data);
+      }
+    }, REFRESH_SECONDS * 1000);
+
+    // Runs when the page closes or `status` changes, so no timer is left running.
+    return () => clearInterval(timer);
+  }, [status]);
 
   function handleRetry() {
     setStatus("loading");

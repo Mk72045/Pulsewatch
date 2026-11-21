@@ -1,12 +1,37 @@
 import { Link } from "react-router-dom";
+import { timeAgo } from "../utils/formatTime.js";
+import StatusBadge from "./StatusBadge.jsx";
 
 const actionButton =
   "rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-60";
+
+// The line that says what the latest check found.
+function describeCheck(monitor) {
+  if (!monitor.isActive) {
+    return { text: "Paused. Not being checked.", isProblem: false };
+  }
+
+  if (monitor.status === "pending") {
+    return { text: "Waiting for the first check...", isProblem: false };
+  }
+
+  const checked = `checked ${timeAgo(monitor.lastCheckedAt)}`;
+
+  if (monitor.status === "up") {
+    return {
+      text: `Responded in ${monitor.lastResponseTimeMs} ms, ${checked}`,
+      isProblem: false,
+    };
+  }
+
+  return { text: `${monitor.lastError}, ${checked}`, isProblem: true };
+}
 
 // One monitor in the list. It only shows data. The page decides what
 // Pause and Delete do. Edit is a link to the edit page.
 export default function MonitorCard({ monitor, busy, onToggle, onDelete }) {
   const unit = monitor.intervalMinutes === 1 ? "minute" : "minutes";
+  const check = describeCheck(monitor);
 
   return (
     <li className="rounded-lg border border-slate-200 bg-white p-4">
@@ -14,19 +39,18 @@ export default function MonitorCard({ monitor, busy, onToggle, onDelete }) {
         <div className="min-w-0">
           <h2 className="truncate font-medium">{monitor.name}</h2>
           <p className="truncate text-sm text-slate-600">{monitor.url}</p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p
+            className={`mt-1 text-sm ${
+              check.isProblem ? "text-red-700" : "text-slate-600"
+            }`}
+          >
+            {check.text}
+          </p>
+          <p className="mt-0.5 text-xs text-slate-500">
             Checks every {monitor.intervalMinutes} {unit}
           </p>
         </div>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-            monitor.isActive
-              ? "bg-emerald-100 text-emerald-800"
-              : "bg-slate-200 text-slate-700"
-          }`}
-        >
-          {monitor.isActive ? "Active" : "Paused"}
-        </span>
+        <StatusBadge monitor={monitor} />
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
