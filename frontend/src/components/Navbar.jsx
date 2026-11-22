@@ -11,6 +11,8 @@ const Navbar = ({ user, handleLogout }) => {
           {user ? (
             <>
               <Link to="/dashboard">Dashboard</Link>
+              <Link to="/incidents">Incidents</Link>
+              <Link to="/settings">Settings</Link>
               <button type="button" onClick={handleLogout}>
                 Log out
               </button>

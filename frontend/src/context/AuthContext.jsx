@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   fetchCurrentUser,
   loginUser,
@@ -27,6 +33,19 @@ export function AuthProvider({ children }) {
     checkSession();
   }, []);
 
+  // Asks the server for the user again, for example after Telegram was
+  // connected. Returns the new user, or null if the request failed.
+  const refreshUser = useCallback(async () => {
+    const result = await handleApi(fetchCurrentUser, { showError: false });
+
+    if (result.ok) {
+      setUser(result.data);
+      return result.data;
+    }
+
+    return null;
+  }, []);
+
   async function register(data) {
     setUser(await registerUser(data));
   }
@@ -41,7 +60,9 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, register, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, register, login, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -6,16 +6,25 @@ const actionButton =
   "rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-60";
 
 // The line that says what the latest check found.
+// The line that says what the latest check found.
 function describeCheck(monitor) {
   if (!monitor.isActive) {
     return { text: "Paused. Not being checked.", isProblem: false };
   }
 
-  if (monitor.status === "pending") {
+  if (monitor.status === "pending" && !monitor.lastCheckedAt) {
     return { text: "Waiting for the first check...", isProblem: false };
   }
 
   const checked = `checked ${timeAgo(monitor.lastCheckedAt)}`;
+
+  // The last check failed, but not often enough yet to call the monitor down.
+  if (monitor.lastError && monitor.status !== "down") {
+    return {
+      text: `${monitor.lastError}, ${checked}. Checking again to confirm.`,
+      isProblem: true,
+    };
+  }
 
   if (monitor.status === "up") {
     return {

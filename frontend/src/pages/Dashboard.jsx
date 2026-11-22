@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ListSkeleton from "../components/ListSkeleton.jsx";
+import LoadError from "../components/LoadError.jsx";
 import MonitorCard from "../components/MonitorCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfirm } from "../context/ConfirmContext.jsx";
@@ -144,19 +145,7 @@ export default function Dashboard() {
         {status === "loading" ? <ListSkeleton /> : null}
 
         {status === "error" ? (
-          <div
-            role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 p-4"
-          >
-            <p className="text-sm text-red-700">{loadError}</p>
-            <button
-              type="button"
-              onClick={handleRetry}
-              className="mt-3 rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
-            >
-              Try again
-            </button>
-          </div>
+          <LoadError message={loadError} onRetry={handleRetry} />
         ) : null}
 
         {status === "ready" && monitors.length === 0 ? (

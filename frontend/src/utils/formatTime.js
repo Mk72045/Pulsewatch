@@ -22,3 +22,36 @@ export function timeAgo(dateString) {
 
   return `${Math.floor(hours / 24)} d ago`;
 }
+
+// "12 min", "2 h 5 min" or "1 d 3 h". A resolvedAt of null means the incident
+// is still going, so it is counted until now.
+export function formatDuration(startedAt, resolvedAt) {
+  const end = resolvedAt ? new Date(resolvedAt).getTime() : Date.now();
+  const totalMinutes = Math.max(
+    1,
+    Math.round((end - new Date(startedAt).getTime()) / 60_000),
+  );
+
+  if (totalMinutes < 60) {
+    return `${totalMinutes} min`;
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+
+  if (hours < 24) {
+    return `${hours} h ${totalMinutes % 60} min`;
+  }
+
+  return `${Math.floor(hours / 24)} d ${hours % 24} h`;
+}
+
+// "22 Nov 2026, 12:53 AM", in the time zone of the browser.
+export function formatDateTime(dateString) {
+  return new Date(dateString).toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
