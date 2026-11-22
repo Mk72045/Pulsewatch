@@ -2,12 +2,14 @@ import { MAX_MONITORS_PER_USER } from "../config/constants.js";
 import { Monitor } from "../models/monitor.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { CheckResult } from "../models/checkResult.model.js";
+import { deleteIncidents, endOpenIncidents } from "./incident.service.js";
 
 const objectIdPattern = /^[a-f\d]{24}$/i;
 
 // The check data of a monitor that has not been checked yet.
 const freshCheckState = () => ({
   status: "pending",
+  consecutiveFailures: 0,
   lastCheckedAt: null,
   lastResponseTimeMs: null,
   lastStatusCode: null,
@@ -63,6 +65,7 @@ export async function updateMonitor(userId, id, data) {
   const monitor = await findOwnedMonitor(userId, id);
   const urlChanged = data.url !== undefined && data.url !== monitor.url;
   const resumed = data.isActive === true && !monitor.isActive;
+  const paused = data.isActive === false && monitor.isActive;
 
   monitor.set(data);
 
@@ -81,6 +84,12 @@ export async function updateMonitor(userId, id, data) {
     throw error;
   }
 
+  // Pausing or resuming ends an open incident without an alert. A new URL does
+  // not: if the monitor is up on its next check, the user gets the "back up" alert.
+  if (resumed || paused) {
+    await endOpenIncidents(monitor._id);
+  }
+
   return monitor;
 }
 
@@ -88,7 +97,7 @@ export async function deleteMonitor(userId, id) {
   const monitor = await findOwnedMonitor(userId, id);
 
   await monitor.deleteOne();
-
-  // The history of a deleted monitor is of no use, so remove it too.
+  // The history and incidents of a deleted monitor are of no use, so remove them too.
   await CheckResult.deleteMany({ monitor: monitor._id });
+  await deleteIncidents(monitor._id);
 }

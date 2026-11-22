@@ -1,6 +1,17 @@
 import dotenv from "dotenv";
 import { z } from "zod";
 
+// A time zone name such as "Asia/Kolkata". Used to check ALERT_TIME_ZONE.
+function isValidTimeZone(name) {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: name });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// quiet: true stops dotenv from printing a message on every start.
 dotenv.config({ quiet: true });
 
 const envSchema = z.object({
@@ -13,8 +24,6 @@ const envSchema = z.object({
   MONGO_URI: z.string().min(1),
 
   CLIENT_URL: z.url(),
-
-  REDIS_URL: z.url(),
 
   JWT_SECRET: z.string().min(32),
 
@@ -29,6 +38,22 @@ const envSchema = z.object({
 
   // How often the scheduler looks for monitors that are due for a check.
   SCHEDULER_TICK_SECONDS: z.coerce.number().int().min(5).max(300).default(15),
+
+  // Email alerts go out through Brevo's HTTP API. Without these keys the app
+  // still runs, it just cannot send email.
+  BREVO_API_KEY: z.string().optional(),
+  MAIL_FROM_EMAIL: z.string().optional(),
+  MAIL_FROM_NAME: z.string().default("Pulsewatch"),
+
+  // Alert messages show times in this time zone. The server itself keeps UTC.
+  ALERT_TIME_ZONE: z
+    .string()
+    .refine(isValidTimeZone, "Not a valid time zone name")
+    .default("Asia/Kolkata"),
+
+  // Telegram alerts. Without them the app still runs, it just has no Telegram.
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_BOT_USERNAME: z.string().optional(),
 });
 
 const result = envSchema.safeParse(process.env);

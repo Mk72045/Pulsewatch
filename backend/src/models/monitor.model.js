@@ -25,6 +25,9 @@ const monitorSchema = new mongoose.Schema(
     lastError: { type: String, default: null },
     // When the monitor is due for its next check. A new monitor is due at once.
     nextCheckAt: { type: Date, default: Date.now },
+
+    // How many checks failed in a row. One failure is not enough to call it down.
+    consecutiveFailures: { type: Number, default: 0 },
   },
   { timestamps: true, versionKey: false },
 );

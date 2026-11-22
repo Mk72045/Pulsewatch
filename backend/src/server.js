@@ -2,9 +2,11 @@ import { app } from "./app.js";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
-import { connectRedis, disconnectRedis } from "./config/redis.js";
-import { checkQueue } from "./queues/checkQueue.js";
 import { startScheduler, stopScheduler } from "./services/scheduler.service.js";
+import {
+  startTelegramPolling,
+  stopTelegramPolling,
+} from "./services/telegramPoller.service.js";
 
 let server;
 let shuttingDown = false;
@@ -39,12 +41,7 @@ async function shutdown(signal) {
 
     // Stop starting new checks and let a running one finish before the database closes.
     await stopScheduler();
-
-    if (checkQueue) {
-      await checkQueue.close();
-    }
-
-    await disconnectRedis();
+    await stopTelegramPolling();
     await disconnectDB();
     process.exit(0);
   } catch (error) {
@@ -55,13 +52,13 @@ async function shutdown(signal) {
 
 async function start() {
   await connectDB();
-  await connectRedis();
 
   server = app.listen(env.PORT, () => {
     logger.info(`Server listening on port ${env.PORT}`);
   });
 
   startScheduler();
+  startTelegramPolling();
 }
 
 process.on("SIGINT", () => {

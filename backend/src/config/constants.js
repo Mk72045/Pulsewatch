@@ -14,3 +14,15 @@ export const CHECKS_AT_ONCE = 10;
 
 // ...and takes at most this many due monitors in one round.
 export const MAX_CHECKS_PER_TICK = 50;
+
+// A monitor is called down only after this many failed checks in a row.
+export const FAILURES_BEFORE_DOWN = 2;
+
+// A failure that is not confirmed yet is checked again after this many seconds.
+export const RETRY_DELAY_SECONDS = 60;
+
+// A message that could not be sent is tried again for this many hours.
+export const OUTBOX_GIVE_UP_HOURS = 24;
+
+// Sent or given-up messages are kept this many days. MongoDB then deletes them.
+export const OUTBOX_KEEP_DAYS = 7;

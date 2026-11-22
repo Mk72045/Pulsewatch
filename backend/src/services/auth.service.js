@@ -10,7 +10,12 @@ const fakeHash = bcrypt.hashSync("not-a-real-password", SALT_ROUNDS);
 
 // The only user fields that are allowed to leave the server.
 function toPublicUser(user) {
-  return { id: user.id, name: user.name, email: user.email };
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    telegramConnected: Boolean(user.telegramChatId),
+  };
 }
 
 export async function registerUser({ name, email, password }) {

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { redis } from "../config/redis.js";
 
 const mongoStates = {
   0: "disconnected",
@@ -16,11 +15,5 @@ export function getHealth() {
     status: "ok",
     uptime: Math.round(process.uptime()),
     mongodb: mongoState,
-    // ioredis uses "ready" once the socket can take commands.
-    redis: !redis
-      ? "disabled"
-      : redis.status === "ready"
-        ? "connected"
-        : "disconnected",
   };
 }
