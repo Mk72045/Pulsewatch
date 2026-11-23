@@ -13,6 +13,11 @@ import { apiRouter } from "./routes/index.js";
 // Tests can import `app` without starting a real server.
 const app = express();
 
+// Behind a proxy every request seems to come from the proxy, so the rate limiter
+// would treat all visitors as one person. This tells Express how many proxies
+// to look through to find the real visitor address.
+app.set("trust proxy", env.TRUST_PROXY);
+
 // Security headers (X-Content-Type-Options, and others) on every response.
 app.use(helmet());
 

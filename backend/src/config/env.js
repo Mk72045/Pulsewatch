@@ -51,6 +51,10 @@ const envSchema = z.object({
     .refine(isValidTimeZone, "Not a valid time zone name")
     .default("Asia/Kolkata"),
 
+  // How many proxies sit in front of the server. Behind Vercel and Render it is
+  // 2, so the real visitor address is found. On a laptop there is none, so 0.
+  TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
+
   // Telegram alerts. Without them the app still runs, it just has no Telegram.
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_BOT_USERNAME: z.string().optional(),

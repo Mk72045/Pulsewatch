@@ -1,9 +1,13 @@
 import dns from "node:dns";
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
-
 import mongoose from "mongoose";
 import { env } from "./env.js";
 import { logger } from "./logger.js";
+
+// Some home networks cannot look up the mongodb+srv address of Atlas. Using
+// public DNS servers fixes that. A hosting platform does not need it.
+if (env.NODE_ENV === "development") {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+}
 
 export async function connectDB() {
   // registers an event listener that runs when the connection emits an error
