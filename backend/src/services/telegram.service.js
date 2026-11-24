@@ -17,10 +17,19 @@ export async function callTelegram(method, body, signal) {
       signal,
     },
   );
+
   const data = await response.json();
 
   if (!data.ok) {
-    throw new Error(`Telegram ${method} failed: ${data.description}`);
+    const error = new Error(
+      `Telegram ${method} failed: ${data.description}`,
+    );
+
+    // Telegram specifies how long we should wait before retrying.
+    error.retryAfter = data.parameters?.retry_after ?? null;
+    error.telegramErrorCode = data.error_code;
+
+    throw error;
   }
 
   return data.result;

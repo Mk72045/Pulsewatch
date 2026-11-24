@@ -90,11 +90,24 @@ async function poll() {
         break;
       }
 
+      // Respect Telegram's retry_after value when rate-limited.
+      const retryAfter = Number(error.retryAfter);
+
+      const delay =
+        Number.isFinite(retryAfter) && retryAfter > 0
+          ? (retryAfter + 1) * 1000
+          : 5000;
+
       logger.warn(
-        { err: error },
-        "Telegram polling failed, trying again in 5s",
+        {
+          err: error,
+          retryAfter: error.retryAfter,
+          retryInSeconds: delay / 1000,
+        },
+        "Telegram polling failed, retrying after delay",
       );
-      await wait(5000);
+
+      await wait(delay);
     }
   }
 }
