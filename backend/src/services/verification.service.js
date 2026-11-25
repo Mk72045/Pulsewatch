@@ -90,7 +90,11 @@ export async function sendVerificationCode(user) {
 // the code is thrown away and a welcome email is sent (best effort).
 // Returns the full user document so the caller can log the user in.
 export async function confirmEmail(email, code) {
-  const user = await User.findOne({ email }).select("+verificationCodeHash");
+  // passwordHash is hidden by default. It is selected only so the response
+  // that logs this user in can report `hasPassword`; the hash never leaves.
+  const user = await User.findOne({ email }).select(
+    "+verificationCodeHash +passwordHash",
+  );
 
   // A wrong email and a wrong code look the same, so this cannot be used to
   // find out which addresses have accounts.

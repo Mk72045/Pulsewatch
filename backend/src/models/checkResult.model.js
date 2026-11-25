@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import { CHECK_HISTORY_DAYS } from "../config/constants.js";
 
-// One row for every check that ran. Used later for charts and incidents.
+// One row for every check that ran. The history endpoint turns these rows into
+// the response-time chart and the uptime percentage.
 const checkResultSchema = new mongoose.Schema(
   {
     monitor: {

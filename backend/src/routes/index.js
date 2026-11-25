@@ -5,6 +5,10 @@ import { authRouter } from "./auth.routes.js";
 import { monitorRouter } from "./monitor.routes.js";
 import { notificationRouter } from "./notification.routes.js";
 import { incidentRouter } from "./incident.routes.js";
+import {
+  publicStatusRouter,
+  statusSettingsRouter,
+} from "./statusPage.routes.js";
 
 // Every feature router is mounted here, under /api/v1.
 export const apiRouter = Router();
@@ -14,3 +18,5 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/monitors", monitorRouter);
 apiRouter.use("/notifications", notificationRouter);
 apiRouter.use("/incidents", incidentRouter);
+apiRouter.use("/status", publicStatusRouter);
+apiRouter.use("/status-settings", statusSettingsRouter);

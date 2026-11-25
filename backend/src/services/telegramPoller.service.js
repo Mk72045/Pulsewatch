@@ -1,5 +1,8 @@
 import { logger } from "../config/logger.js";
-import { linkTelegramChat } from "./notification.service.js";
+import {
+  findUserByTelegramChat,
+  linkTelegramChat,
+} from "./notification.service.js";
 import {
   callTelegram,
   sendTelegramMessage,
@@ -36,6 +39,19 @@ async function handleUpdate(update) {
   const user = await linkTelegramChat(code, chatId);
 
   if (!user) {
+    // The code is single-use. If this chat is already linked, pressing the
+    // same link again is harmless, so say that instead of "expired", which
+    // wrongly suggests something went wrong.
+    const linked = await findUserByTelegramChat(chatId);
+
+    if (linked) {
+      await sendTelegramMessage(
+        chatId,
+        `This chat is already connected to the account of ${linked.name}. You will keep getting alerts here. Nothing else to do.`,
+      );
+      return;
+    }
+
     await sendTelegramMessage(
       chatId,
       "This link is wrong or has expired. Press Connect Telegram in Pulsewatch again.",

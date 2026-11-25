@@ -4,7 +4,12 @@ import FormField from "./FormField.jsx";
 // A centered modal built on the native <dialog> element. The browser handles
 // the dark background, blocking the page behind and keeping Tab inside the box.
 // `dialog` holds the text to show, or is null when nothing is open.
-export default function ConfirmDialog({ dialog, onConfirm, onCancel }) {
+export default function ConfirmDialog({
+  dialog,
+  onConfirm,
+  onCancel,
+  onSecondary,
+}) {
   const ref = useRef(null);
   const isOpen = dialog !== null;
 
@@ -58,6 +63,18 @@ export default function ConfirmDialog({ dialog, onConfirm, onCancel }) {
     setBusy(false);
   }
 
+  // The optional second action (for example "Email me a code"). It runs while
+  // the dialog stays open, and shows its own error under the input.
+  async function handleSecondary() {
+    if (busy) {
+      return;
+    }
+
+    setBusy(true);
+    await onSecondary();
+    setBusy(false);
+  }
+
   return (
     <dialog
       ref={ref}
@@ -97,6 +114,8 @@ export default function ConfirmDialog({ dialog, onConfirm, onCancel }) {
               label={dialog.input.label}
               type={dialog.input.type ?? "text"}
               autoComplete={dialog.input.autoComplete}
+              inputMode={dialog.input.inputMode}
+              maxLength={dialog.input.maxLength}
               value={value}
               onChange={(event) => setValue(event.target.value)}
               error={dialog.error}
@@ -110,7 +129,19 @@ export default function ConfirmDialog({ dialog, onConfirm, onCancel }) {
           <p className="mt-4 text-sm text-red-600">{dialog.error}</p>
         ) : null}
 
-        <div className="mt-6 flex justify-end gap-2">
+        <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
+          {/* The optional second action, kept apart from the danger button so
+              it is not clicked by mistake. It leaves the dialog open. */}
+          {dialog?.secondary ? (
+            <button
+              type="button"
+              onClick={handleSecondary}
+              disabled={busy}
+              className="mr-auto rounded-lg px-2 py-2 text-sm font-medium text-slate-900 underline hover:no-underline disabled:opacity-60"
+            >
+              {dialog.secondary.label}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={onCancel}

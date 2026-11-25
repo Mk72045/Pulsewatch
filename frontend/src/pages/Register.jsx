@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import FormField from "../components/FormField.jsx";
+import GoogleButton from "../components/GoogleButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { googleEnabled } from "../utils/google.js";
 import { handleApi } from "../utils/handleApi.js";
 
 export default function Register() {
-  const { user, register } = useAuth();
+  const { user, register, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -47,9 +49,42 @@ export default function Register() {
     });
   }
 
+  // Google has already verified the address, so there is no code to wait for
+  // and the account is usable at once. If this person already has an account
+  // with this email, the backend links it and signs them in instead of
+  // refusing with "already exists".
+  async function handleGoogle(credential) {
+    if (submitting) {
+      return;
+    }
+
+    setSubmitting(true);
+
+    const result = await handleApi(() => signInWithGoogle(credential), {
+      success: "Signed in with Google",
+    });
+
+    setSubmitting(false);
+
+    if (result.ok) {
+      navigate("/dashboard");
+    }
+  }
+
   return (
     <section className="mx-auto max-w-sm">
       <h1 className="text-2xl font-semibold">Create your account</h1>
+
+      {googleEnabled ? (
+        <div className="mt-6 space-y-4">
+          <GoogleButton onCredential={handleGoogle} disabled={submitting} />
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs text-slate-500">or</span>
+            <span className="h-px flex-1 bg-slate-200" />
+          </div>
+        </div>
+      ) : null}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <FormField

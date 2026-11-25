@@ -58,6 +58,11 @@ const envSchema = z.object({
   // Telegram alerts. Without them the app still runs, it just has no Telegram.
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_BOT_USERNAME: z.string().optional(),
+
+  // Google sign-in. The id is not secret, but the backend must know it to
+  // check that a token was issued for this app. Without it the Google
+  // endpoints answer 503 and the frontend hides the buttons.
+  GOOGLE_CLIENT_ID: z.string().optional(),
 });
 
 const result = envSchema.safeParse(process.env);

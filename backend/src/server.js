@@ -73,7 +73,7 @@ process.on("SIGTERM", () => {
 start().catch(async (error) => {
   logger.error({ err: error }, "Server failed to start");
 
-  // Mongo may already be open if Redis was the step that failed.
+  // Mongo may already be open if the listen step was what failed.
   await disconnectDB().catch(() => {});
   process.exit(1);
 });

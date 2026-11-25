@@ -63,12 +63,41 @@ export function ConfirmProvider({ children }) {
     );
   }
 
+  // The optional second action, e.g. "Email me a code". It never closes the
+  // dialog: it either reports an error or clears it, and the user then types
+  // the value the extra step produced.
+  async function runSecondary() {
+    const { secondary } = dialog ?? {};
+
+    if (!secondary) {
+      return;
+    }
+
+    let result;
+
+    try {
+      result = await secondary.run();
+    } catch {
+      result = { ok: false, error: "Something went wrong. Please try again." };
+    }
+
+    setDialog((current) =>
+      current
+        ? {
+            ...current,
+            error: result?.ok ? null : (result?.error ?? "Please try again."),
+          }
+        : current,
+    );
+  }
+
   return (
     <ConfirmContext.Provider value={confirmAction}>
       {children}
       <ConfirmDialog
         dialog={dialog}
         onConfirm={runAndFinish}
+        onSecondary={runSecondary}
         onCancel={() => finish(false)}
       />
     </ConfirmContext.Provider>

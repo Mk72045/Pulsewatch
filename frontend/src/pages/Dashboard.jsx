@@ -5,6 +5,7 @@ import LoadError from "../components/LoadError.jsx";
 import MonitorCard from "../components/MonitorCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfirm } from "../context/ConfirmContext.jsx";
+import { fetchMonitorsSummary } from "../services/historyService.js";
 import {
   deleteMonitor,
   fetchMonitors,
@@ -23,6 +24,9 @@ export default function Dashboard() {
   const { user } = useAuth();
   const confirmAction = useConfirm();
   const [monitors, setMonitors] = useState([]);
+  // Uptime of each monitor over the last day, keyed by monitor id. Loading it
+  // separately means a failed summary never hides the monitor list.
+  const [summaryById, setSummaryById] = useState({});
   // The list is always in exactly one of these: "loading", "error" or "ready".
   const [status, setStatus] = useState("loading");
   const [loadError, setLoadError] = useState("");
@@ -46,6 +50,22 @@ export default function Dashboard() {
     }
 
     load();
+  }, [reloadKey]);
+
+  // The uptime figures are a separate request. If it fails the cards simply
+  // show "No checks in 24h", which is honest and does not break the page.
+  useEffect(() => {
+    async function loadSummary() {
+      const result = await handleApi(fetchMonitorsSummary, { showError: false });
+
+      if (result.ok) {
+        setSummaryById(
+          Object.fromEntries(result.data.map((row) => [row._id, row])),
+        );
+      }
+    }
+
+    loadSummary();
   }, [reloadKey]);
 
   // Refresh the list now and then, so new check results appear without a reload.
@@ -169,6 +189,7 @@ export default function Dashboard() {
               <MonitorCard
                 key={monitor._id}
                 monitor={monitor}
+                summary={summaryById[monitor._id]}
                 busy={busyId === monitor._id}
                 onToggle={() => handleToggle(monitor)}
                 onDelete={() => handleDelete(monitor)}

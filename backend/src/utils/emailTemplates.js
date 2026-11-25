@@ -59,6 +59,49 @@ export function verificationEmail({ name, code }) {
   };
 }
 
+// A code that proves the mailbox for something other than signup: signing in
+// without a password, or deleting the account. The wording makes the purpose
+// clear, so an unexpected email prompts the right reaction.
+export function actionCodeEmail({ name, code, purpose }) {
+  const minutes = OTP_EXPIRES_MINUTES;
+  const safeName = escapeHtml(name);
+
+  const isDelete = purpose === "delete";
+
+  const what = isDelete ? "delete your Pulsewatch account" : "log in";
+  const somewhere = isDelete
+    ? "the Pulsewatch delete-account window"
+    : "the Pulsewatch sign-in page";
+  const ignore = isDelete
+    ? "If you did not ask to delete your account, ignore this email. Nothing will be deleted, and you may want to change your password."
+    : "If you did not try to log in, you can ignore this email. Nobody can sign in without this code.";
+
+  return {
+    subject: `${code} is your ${env.MAIL_FROM_NAME} code to ${what}`,
+    text: [
+      `Hi ${name},`,
+      "",
+      `Your code to ${what} is: ${code}`,
+      "",
+      `Enter it in ${somewhere}. The code expires in ${minutes} minutes.`,
+      "",
+      ignore,
+    ].join("\n"),
+    html: layout(
+      isDelete ? "Confirm deleting your account" : "Sign in to Pulsewatch",
+      [
+        `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;">Hi ${safeName},</p>`,
+        `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;">Your code to ${what} is:</p>`,
+        '<p style="margin:0 0 16px;font-size:32px;font-weight:600;letter-spacing:8px;text-align:center;padding:16px;background:#f1f5f9;border-radius:8px;">',
+        escapeHtml(code),
+        "</p>",
+        `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;">Enter it in ${somewhere}. The code expires in ${minutes} minutes.</p>`,
+        `<p style="margin:0;font-size:13px;color:#64748b;">${ignore}</p>`,
+      ].join(""),
+    ),
+  };
+}
+
 export function welcomeEmail({ name }) {
   const dashboard = `${env.CLIENT_URL}/dashboard`;
   const safeName = escapeHtml(name);

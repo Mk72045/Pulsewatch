@@ -12,6 +12,20 @@ export async function createTelegramLink(userId) {
     throw new ApiError(503, "Telegram alerts are not available right now");
   }
 
+  // A connected account does not need a new link, and a code made here could
+  // never be used: the first press connects, the second finds it cleared.
+  // Refusing keeps the frontend from offering a link that only says "expired".
+  const user = await User.findById(userId).select("telegramChatId");
+
+  if (user?.telegramChatId) {
+    throw new ApiError(
+      409,
+      "Telegram is already connected. Disconnect it first to link another chat",
+      undefined,
+      "TELEGRAM_ALREADY_CONNECTED",
+    );
+  }
+
   const code = randomBytes(16).toString("hex");
 
   await User.updateOne(
@@ -57,6 +71,15 @@ export async function linkTelegramChat(code, chatId) {
   );
 
   return user;
+}
+
+// The account this chat is already connected to, or null.
+//
+// The link is single-use: once used, its code is cleared, so pressing the same
+// link a second time finds no code. That is normal, and the bot should say
+// "already connected" rather than "expired", because nothing is wrong.
+export function findUserByTelegramChat(chatId) {
+  return User.findOne({ telegramChatId: chatId }).select("name");
 }
 
 export async function disconnectTelegram(userId) {

@@ -7,15 +7,26 @@ import {
 } from "react";
 import {
   deleteAccount as deleteAccountRequest,
+  deleteAccountWithCode as deleteAccountWithCodeRequest,
   fetchCurrentUser,
   loginUser,
+  loginWithCode as loginWithCodeRequest,
   logoutUser,
   registerUser,
+  signInWithGoogle as signInWithGoogleRequest,
+  updatePassword,
   verifyEmail,
 } from "../services/authService.js";
 import { handleApi } from "../utils/handleApi.js";
 
 const AuthContext = createContext(null);
+
+// One session check at a time. React StrictMode mounts the provider twice in
+// development, which used to make two identical /auth/me requests. Sharing
+// the promise in flight means the second mount waits on the first instead of
+// asking the server again. It is cleared as soon as it finishes, so a later
+// refresh still makes a fresh request.
+let sessionCheck = null;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -24,10 +35,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Being logged out gives a normal 401 here, so no error toast is wanted.
     async function checkSession() {
-      const result = await handleApi(fetchCurrentUser, { showError: false });
+      sessionCheck ??= handleApi(fetchCurrentUser, { showError: false });
 
+      const result = await sessionCheck;
+
+      sessionCheck = null;
+
+      // Logged out is a normal 200 with user: null, so no error toast.
       setUser(result.ok ? result.data : null);
       setLoading(false);
     }
@@ -64,6 +79,23 @@ export function AuthProvider({ children }) {
     setUser(await loginUser(data));
   }
 
+  // The backend creates the account on the first sign-in and sets the cookie,
+  // so the session starts here. Both pages use this one method.
+  async function signInWithGoogle(credential) {
+    setUser(await signInWithGoogleRequest(credential));
+  }
+
+  // Signing in with a code emailed to the address. No password involved.
+  async function loginWithCode(data) {
+    setUser(await loginWithCodeRequest(data));
+  }
+
+  // Adds a password to a Google account (or changes an existing one) and
+  // refreshes the user so `hasPassword` is up to date.
+  async function changePassword(data) {
+    setUser(await updatePassword(data));
+  }
+
   async function logout() {
     await logoutUser();
     setUser(null);
@@ -87,6 +119,22 @@ export function AuthProvider({ children }) {
     return { ok: true };
   }
 
+  // The same deletion, proven with a code emailed to the address. This is the
+  // way in for accounts without a password, such as ones made with Google.
+  async function deleteAccountWithCode(code) {
+    const result = await handleApi(() => deleteAccountWithCodeRequest(code), {
+      success: "Your account was deleted",
+      showError: false,
+    });
+
+    if (!result.ok) {
+      return { ok: false, error: result.error.message };
+    }
+
+    setUser(null);
+    return { ok: true };
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -97,6 +145,10 @@ export function AuthProvider({ children }) {
         login,
         logout,
         deleteAccount,
+        deleteAccountWithCode,
+        loginWithCode,
+        signInWithGoogle,
+        changePassword,
         refreshUser,
       }}
     >

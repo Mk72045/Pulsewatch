@@ -9,6 +9,21 @@ export const MAX_MONITORS_PER_USER = env.MAX_MONITORS_PER_USER;
 // How many days of check results are kept. MongoDB deletes older ones itself.
 export const CHECK_HISTORY_DAYS = 7;
 
+// The windows the history chart can ask for. Each one is split into a fixed
+// number of buckets so the chart always has the same number of points, whether
+// it shows six hours or a week.
+export const HISTORY_RANGES = {
+  "6h": { hours: 6, buckets: 36 },
+  "24h": { hours: 24, buckets: 48 },
+  "7d": { hours: 24 * 7, buckets: 42 },
+};
+
+// The window used when the request does not name one.
+export const DEFAULT_HISTORY_RANGE = "24h";
+
+// The dashboard summary looks at this many hours of checks.
+export const SUMMARY_WINDOW_HOURS = 24;
+
 // The scheduler runs at most this many checks at the same time...
 export const CHECKS_AT_ONCE = 10;
 
