@@ -6,7 +6,9 @@ export const mailEnabled = Boolean(env.BREVO_API_KEY && env.MAIL_FROM_EMAIL);
 // Sends one email through Brevo's HTTP API (port 443), so it also works on
 // hosts that block SMTP. It makes ONE attempt and never throws. It returns
 // { ok, error }. When to try again is decided by the outbox.
-export async function sendMail({ to, subject, text }) {
+//
+// `html` is optional. Outbox alerts pass text only; signup emails pass both.
+export async function sendMail({ to, subject, text, html }) {
   if (!mailEnabled) {
     return { ok: false, error: "Email is not configured" };
   }
@@ -24,6 +26,7 @@ export async function sendMail({ to, subject, text }) {
         to: [{ email: to }],
         subject,
         textContent: text,
+        ...(html ? { htmlContent: html } : {}),
       }),
       signal: AbortSignal.timeout(10_000),
     });

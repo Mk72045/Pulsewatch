@@ -37,6 +37,10 @@ export function errorHandler(error, req, res, next) {
     body.details = error.details;
   }
 
+  if (isApiError && error.code) {
+    body.code = error.code;
+  }
+
   // Stack traces help locally. They are hidden in production.
   if (env.NODE_ENV === "development" && error.stack) {
     body.stack = error.stack;

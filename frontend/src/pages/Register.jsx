@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import FormField from "../components/FormField.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { handleApi } from "../utils/handleApi.js";
 
 export default function Register() {
   const { user, register } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -28,15 +29,22 @@ export default function Register() {
     setFieldErrors({});
     setSubmitting(true);
 
-    const result = await handleApi(() => register(form), {
-      success: "Account created successfully",
-    });
+    const result = await handleApi(() => register(form));
 
     setSubmitting(false);
 
     if (!result.ok) {
       setFieldErrors(result.error.fields);
+      return;
     }
+
+    // The account exists but is not usable until the code is entered, so the
+    // next stop is the verification page. The address travels in router state
+    // (not the URL) and the page redirects back here if it is missing.
+    // `emailSent` tells the page whether it should offer "Resend" at once.
+    navigate("/verify-email", {
+      state: { email: result.data.email, emailSent: result.data.emailSent },
+    });
   }
 
   return (

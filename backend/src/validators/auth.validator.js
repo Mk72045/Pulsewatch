@@ -24,3 +24,23 @@ export const loginSchema = z.object({
   email,
   password: z.string().min(1).max(72),
 });
+
+// The code is always six digits, but it is trimmed so a pasted code with a
+// stray space still works.
+export const verifyEmailSchema = z.object({
+  email,
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "Enter the 6-digit code from the email"),
+});
+
+// Resend only needs the address. Whether an account exists is deliberately
+// not revealed by the response.
+export const resendVerificationSchema = z.object({ email });
+
+// Deleting an account asks for the password again, so a stolen cookie (or a
+// stray click) alone cannot wipe the account.
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, "Enter your password").max(72),
+});

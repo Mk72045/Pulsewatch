@@ -26,3 +26,15 @@ export const OUTBOX_GIVE_UP_HOURS = 24;
 
 // Sent or given-up messages are kept this many days. MongoDB then deletes them.
 export const OUTBOX_KEEP_DAYS = 7;
+
+// Email verification. The user types this many digits from the email.
+export const OTP_LENGTH = 6;
+
+// A code stops working this many minutes after it was sent.
+export const OTP_EXPIRES_MINUTES = 10;
+
+// A new code can be requested only after this many seconds.
+export const OTP_RESEND_SECONDS = 60;
+
+// Wrong guesses allowed for one code before a new one must be requested.
+export const OTP_MAX_ATTEMPTS = 5;

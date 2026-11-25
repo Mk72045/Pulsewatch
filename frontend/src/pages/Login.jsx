@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import FormField from "../components/FormField.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { handleApi } from "../utils/handleApi.js";
 
 export default function Login() {
   const { user, login } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -35,9 +36,18 @@ export default function Login() {
 
     setSubmitting(false);
 
-    if (!result.ok) {
-      setFieldErrors(result.error.fields);
+    if (result.ok) {
+      return;
     }
+
+    // The backend says the password was right but the email was never
+    // confirmed. Send the user to the page where they enter the code.
+    if (result.error.code === "EMAIL_UNVERIFIED") {
+      navigate("/verify-email", { state: { email: form.email } });
+      return;
+    }
+
+    setFieldErrors(result.error.fields);
   }
 
   return (

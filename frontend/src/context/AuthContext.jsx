@@ -6,10 +6,12 @@ import {
   useState,
 } from "react";
 import {
+  deleteAccount as deleteAccountRequest,
   fetchCurrentUser,
   loginUser,
   logoutUser,
   registerUser,
+  verifyEmail,
 } from "../services/authService.js";
 import { handleApi } from "../utils/handleApi.js";
 
@@ -46,8 +48,16 @@ export function AuthProvider({ children }) {
     return null;
   }, []);
 
+  // Creating an account does not start a session. This returns
+  // { email, emailSent } so the caller can open the verification page.
   async function register(data) {
-    setUser(await registerUser(data));
+    return registerUser(data);
+  }
+
+  // Called from the verification page once the code is accepted. The cookie
+  // is set by the backend, so the user is logged in from here on.
+  async function confirmEmail(data) {
+    setUser(await verifyEmail(data));
   }
 
   async function login(data) {
@@ -59,9 +69,36 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  // Deletes the account for good. The backend checks the password again and
+  // clears the cookie, so on success the local user is simply dropped.
+  // It answers { ok } or { ok, error: "message" }, which the confirm dialog
+  // shows under the password box when the password was wrong.
+  async function deleteAccount(password) {
+    const result = await handleApi(() => deleteAccountRequest(password), {
+      success: "Your account was deleted",
+      showError: false,
+    });
+
+    if (!result.ok) {
+      return { ok: false, error: result.error.message };
+    }
+
+    setUser(null);
+    return { ok: true };
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, register, login, logout, refreshUser }}
+      value={{
+        user,
+        loading,
+        register,
+        confirmEmail,
+        login,
+        logout,
+        deleteAccount,
+        refreshUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

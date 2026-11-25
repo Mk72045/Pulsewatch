@@ -11,7 +11,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "migrate:verify-emails": "node scripts/migrate-verify-emails.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
