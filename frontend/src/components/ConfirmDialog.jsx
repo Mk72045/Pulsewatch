@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import FormField from "./FormField.jsx";
+import NavIcon from "./navbar/NavIcon.jsx";
 
 // A centered modal built on the native <dialog> element. The browser handles
 // the dark background, blocking the page behind and keeping Tab inside the box.
@@ -41,10 +42,11 @@ export default function ConfirmDialog({
     }
   }, [isOpen]);
 
-  const confirmStyle =
-    dialog?.tone === "danger"
-      ? "bg-red-600 text-white hover:bg-red-700"
-      : "bg-slate-900 text-white hover:bg-slate-700";
+  const isDanger = dialog?.tone === "danger";
+
+  const confirmStyle = isDanger
+    ? "bg-red-600 text-white hover:bg-red-700 focus-visible:outline-red-600"
+    : "bg-slate-900 text-white hover:bg-slate-800 focus-visible:outline-emerald-600";
 
   // An input box makes its value required, unless the caller says otherwise.
   const valueRequired =
@@ -96,19 +98,37 @@ export default function ConfirmDialog({
       }}
       // m-auto: Tailwind resets margins, which would push the box to the top left.
       // The width follows the screen on phones and stops growing at max-w-md.
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-lg bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/50"
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl bg-white p-0 text-slate-900 shadow-2xl transition duration-200 backdrop:bg-slate-900/50 backdrop:backdrop-blur-sm starting:scale-95 starting:opacity-0 motion-reduce:transition-none"
     >
       {/* A form, so pressing Enter in the password box confirms. */}
       <form onSubmit={handleSubmit} className="p-6">
-        <h2 id="confirm-title" className="text-lg font-semibold">
-          {dialog?.title}
-        </h2>
-        <p id="confirm-message" className="mt-2 text-sm text-slate-600">
-          {dialog?.message}
-        </p>
+        <div className="flex items-start gap-4">
+          <span
+            className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${
+              isDanger
+                ? "bg-red-50 text-red-600"
+                : "bg-emerald-50 text-emerald-600"
+            }`}
+          >
+            {/* "incidents" is the warning triangle icon */}
+            <NavIcon
+              name={isDanger ? "incidents" : "info"}
+              className="h-5 w-5"
+            />
+          </span>
+
+          <div className="min-w-0">
+            <h2 id="confirm-title" className="text-lg font-semibold">
+              {dialog?.title}
+            </h2>
+            <p id="confirm-message" className="mt-1 text-sm text-slate-600">
+              {dialog?.message}
+            </p>
+          </div>
+        </div>
 
         {dialog?.input ? (
-          <div className="mt-4">
+          <div className="mt-5">
             <FormField
               id="confirm-input"
               label={dialog.input.label}
@@ -129,7 +149,9 @@ export default function ConfirmDialog({
           <p className="mt-4 text-sm text-red-600">{dialog.error}</p>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
+        {/* On phones the buttons stack and the main action is on top
+            (flex-col-reverse). From 640px up they sit in one row. */}
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
           {/* The optional second action, kept apart from the danger button so
               it is not clicked by mistake. It leaves the dialog open. */}
           {dialog?.secondary ? (
@@ -137,7 +159,7 @@ export default function ConfirmDialog({
               type="button"
               onClick={handleSecondary}
               disabled={busy}
-              className="mr-auto rounded-lg px-2 py-2 text-sm font-medium text-slate-900 underline hover:no-underline disabled:opacity-60"
+              className="rounded-lg px-2 py-2 text-sm font-medium text-slate-700 underline hover:text-slate-900 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-60 sm:mr-auto"
             >
               {dialog.secondary.label}
             </button>
@@ -146,14 +168,14 @@ export default function ConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-60"
+            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-60"
           >
             {dialog?.cancelLabel ?? "Cancel"}
           </button>
           <button
             type="submit"
             disabled={blocked}
-            className={`rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-60 ${confirmStyle}`}
+            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60 ${confirmStyle}`}
           >
             {busy ? "Working..." : (dialog?.confirmLabel ?? "Confirm")}
           </button>

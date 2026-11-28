@@ -22,7 +22,7 @@ const AccountDetails = ({ user }) => {
             className="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
           >
             <dt className="text-sm text-slate-500">{row.label}</dt>
-            <dd className="min-w-0 break-words text-sm font-medium text-slate-900">
+            <dd className="min-w-0 wrap-break-words text-sm font-medium text-slate-900">
               {row.value}
             </dd>
           </div>
