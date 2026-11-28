@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import FormField from "../components/FormField.jsx";
-import GoogleButton from "../components/GoogleButton.jsx";
+
 import { useAuth } from "../context/AuthContext.jsx";
-import { googleEnabled } from "../utils/google.js";
+
 import { handleApi } from "../utils/handleApi.js";
+import AuthCard from "../components/auth/AuthCard.jsx";
+import GoogleSection from "../components/auth/GoogleSection.jsx";
+import SubmitButton from "../components/SubmitButton.jsx";
 
 export default function Login() {
   const { user, login, signInWithGoogle } = useAuth();
@@ -73,62 +76,62 @@ export default function Login() {
   }
 
   return (
-    <section className="mx-auto max-w-sm">
-      <h1 className="text-2xl font-semibold">Log in</h1>
+    <AuthCard
+      icon="login"
+      title="Welcome back"
+      subtitle="Log in to check on your monitors."
+      footer={
+        <>
+          <p>
+            No account yet?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-emerald-700 hover:underline"
+            >
+              Register
+            </Link>
+          </p>
+          <p>
+            No password, or forgot it?{" "}
+            <Link
+              to="/login/code"
+              className="font-semibold text-emerald-700 hover:underline"
+            >
+              Log in with a code instead
+            </Link>
+          </p>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <GoogleSection onCredential={handleGoogle} disabled={submitting} />
 
-      {googleEnabled ? (
-        <div className="mt-6 space-y-4">
-          <GoogleButton onCredential={handleGoogle} disabled={submitting} />
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs text-slate-500">or</span>
-            <span className="h-px flex-1 bg-slate-200" />
-          </div>
-        </div>
-      ) : null}
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <FormField
-          id="email"
-          label="Email"
-          type="email"
-          autoComplete="email"
-          required
-          value={form.email}
-          onChange={handleChange}
-          error={fieldErrors.email}
-        />
-        <FormField
-          id="password"
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={form.password}
-          onChange={handleChange}
-          error={fieldErrors.password}
-        />
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
-        >
-          {submitting ? "Logging in..." : "Log in"}
-        </button>
-      </form>
-
-      <p className="mt-4 text-sm text-slate-600">
-        No account yet?{" "}
-        <Link to="/register" className="font-medium text-slate-900 underline">
-          Register
-        </Link>
-      </p>
-      <p className="mt-2 text-sm text-slate-600">
-        No password, or forgot it?{" "}
-        <Link to="/login/code" className="font-medium text-slate-900 underline">
-          Log in with a code instead
-        </Link>
-      </p>
-    </section>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            required
+            value={form.email}
+            onChange={handleChange}
+            error={fieldErrors.email}
+          />
+          <FormField
+            id="password"
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={form.password}
+            onChange={handleChange}
+            error={fieldErrors.password}
+          />
+          <SubmitButton loading={submitting} loadingText="Logging in...">
+            Log in
+          </SubmitButton>
+        </form>
+      </div>
+    </AuthCard>
   );
 }

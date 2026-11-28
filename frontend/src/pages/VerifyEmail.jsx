@@ -4,6 +4,8 @@ import FormField from "../components/FormField.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { resendVerification } from "../services/authService.js";
 import { handleApi } from "../utils/handleApi.js";
+import AuthCard from "../components/auth/AuthCard.jsx";
+import SubmitButton from "../components/SubmitButton.jsx";
 
 // Seconds before "Resend code" is allowed again. Kept equal to the backend's
 // OTP_RESEND_SECONDS so the button does not offer a request that is refused.
@@ -85,24 +87,39 @@ export default function VerifyEmail() {
     }
   }
 
-  return (
-    <section className="mx-auto max-w-sm">
-      <h1 className="text-2xl font-semibold">Confirm your email</h1>
-      <p className="mt-2 text-sm text-slate-600">
-        We sent a 6-digit code to <span className="font-medium">{email}</span>.
-        Enter it below to finish creating your account.
-      </p>
-
+    return (
+    <AuthCard
+      icon="mail"
+      title="Confirm your email"
+      subtitle={
+        <>
+          We sent a 6-digit code to{" "}
+          <span className="break-all font-semibold text-slate-900">{email}</span>.
+          Enter it below to finish creating your account.
+        </>
+      }
+      footer={
+        <p>
+          Wrong address?{" "}
+          <Link
+            to="/register"
+            className="font-semibold text-emerald-700 hover:underline"
+          >
+            Register again
+          </Link>
+        </p>
+      }
+    >
       {firstEmailSent ? null : (
         <p
           role="alert"
-          className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
+          className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
         >
           The first email could not be sent. Press Resend code to try again.
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <FormField
           id="code"
           label="Verification code"
@@ -113,21 +130,22 @@ export default function VerifyEmail() {
           required
           autoFocus
           placeholder="123456"
+          inputClassName="text-center font-mono tracking-[0.4em]"
           value={code}
           onChange={(event) => setCode(event.target.value)}
           error={fieldError}
           hint="The code expires in 10 minutes."
         />
-        <button
-          type="submit"
-          disabled={submitting || code.trim().length !== 6}
-          className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+        <SubmitButton
+          loading={submitting}
+          disabled={code.trim().length !== 6}
+          loadingText="Confirming..."
         >
-          {submitting ? "Confirming..." : "Confirm email"}
-        </button>
+          Confirm email
+        </SubmitButton>
       </form>
 
-      <div className="mt-4 text-sm text-slate-600">
+      <div className="mt-4 text-center text-sm text-slate-600">
         {waitLeft > 0 ? (
           <p>Did not get it? You can resend a new code in {waitLeft}s.</p>
         ) : (
@@ -135,19 +153,12 @@ export default function VerifyEmail() {
             type="button"
             onClick={handleResend}
             disabled={resending}
-            className="font-medium text-slate-900 underline disabled:opacity-60"
+            className="font-semibold text-emerald-700 hover:underline disabled:opacity-60"
           >
             {resending ? "Sending..." : "Resend code"}
           </button>
         )}
       </div>
-
-      <p className="mt-6 text-sm text-slate-600">
-        Wrong address?{" "}
-        <Link to="/register" className="font-medium text-slate-900 underline">
-          Register again
-        </Link>
-      </p>
-    </section>
+    </AuthCard>
   );
 }

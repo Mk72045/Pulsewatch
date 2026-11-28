@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MonitorForm from "../components/MonitorForm.jsx";
 import { fetchMonitor, updateMonitor } from "../services/monitorService.js";
 import { handleApi } from "../utils/handleApi.js";
+import BackLink from "../components/BackLink.jsx";
 
 export default function EditMonitor() {
   // The :id part of the URL /monitors/:id/edit
@@ -46,10 +47,11 @@ export default function EditMonitor() {
 
   return (
     <section>
-      <Link to="/dashboard" className="text-sm text-slate-600 underline">
-        Back to dashboard
-      </Link>
-      <h1 className="mt-3 text-2xl font-semibold">Edit monitor</h1>
+      <BackLink to="/dashboard">Back to dashboard</BackLink>
+      <h1 className="mt-3 text-2xl font-bold text-slate-900">Edit monitor</h1>
+      <p className="mt-1 text-sm text-slate-500">
+        Change the address or the settings of this monitor.
+      </p>
 
       <div className="mt-6 max-w-lg">
         {status === "loading" ? (

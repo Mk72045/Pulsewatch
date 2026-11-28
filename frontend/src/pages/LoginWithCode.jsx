@@ -4,6 +4,8 @@ import FormField from "../components/FormField.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { requestLoginCode } from "../services/authService.js";
 import { handleApi } from "../utils/handleApi.js";
+import AuthCard from "../components/auth/AuthCard.jsx";
+import SubmitButton from "../components/SubmitButton.jsx";
 
 // Seconds before "Send a new code" is allowed again. Kept equal to the
 // backend's OTP_RESEND_SECONDS so the button never offers a refused request.
@@ -89,15 +91,25 @@ export default function LoginWithCode() {
     setFieldErrors(result.error.fields);
   }
 
-  return (
-    <section className="mx-auto max-w-sm">
-      <h1 className="text-2xl font-semibold">Log in with a code</h1>
-      <p className="mt-2 text-sm text-slate-600">
-        No password needed. We email a 6-digit code, and you enter it here.
-      </p>
-
+    return (
+    <AuthCard
+      icon="mail"
+      title="Log in with a code"
+      subtitle="No password needed. We email a 6-digit code, and you enter it here."
+      footer={
+        <p>
+          Prefer your password?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-emerald-700 hover:underline"
+          >
+            Log in
+          </Link>
+        </p>
+      }
+    >
       {step === "email" ? (
-        <form onSubmit={handleSend} className="mt-6 space-y-4">
+        <form onSubmit={handleSend} className="space-y-4">
           <FormField
             id="email"
             label="Email"
@@ -109,17 +121,19 @@ export default function LoginWithCode() {
             onChange={(event) => setEmail(event.target.value)}
             error={fieldErrors.email}
           />
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
-          >
-            {submitting ? "Sending..." : "Email me a code"}
-          </button>
+          <SubmitButton loading={submitting} loadingText="Sending...">
+            Email me a code
+          </SubmitButton>
         </form>
       ) : (
         <>
-          <p className="mt-3 text-sm text-slate-600">
+          <p
+            className={`rounded-lg px-3 py-2 text-sm ${
+              sent
+                ? "bg-slate-50 text-slate-600"
+                : "border border-amber-200 bg-amber-50 text-amber-800"
+            }`}
+          >
             {sent
               ? "If that address has an account, a code is on its way."
               : "The email could not be sent. Press Send a new code to try again."}
@@ -136,21 +150,22 @@ export default function LoginWithCode() {
               required
               autoFocus
               placeholder="123456"
+              inputClassName="text-center font-mono tracking-[0.4em]"
               value={code}
               onChange={(event) => setCode(event.target.value)}
               error={fieldErrors.code}
               hint="The code expires in 10 minutes."
             />
-            <button
-              type="submit"
-              disabled={submitting || code.trim().length !== 6}
-              className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+            <SubmitButton
+              loading={submitting}
+              disabled={code.trim().length !== 6}
+              loadingText="Logging in..."
             >
-              {submitting ? "Logging in..." : "Log in"}
-            </button>
+              Log in
+            </SubmitButton>
           </form>
 
-          <div className="mt-4 text-sm text-slate-600">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm text-slate-600">
             {waitLeft > 0 ? (
               <p>Send a new code in {waitLeft}s.</p>
             ) : (
@@ -158,7 +173,7 @@ export default function LoginWithCode() {
                 type="button"
                 onClick={handleSend}
                 disabled={submitting}
-                className="font-medium text-slate-900 underline disabled:opacity-60"
+                className="font-semibold text-emerald-700 hover:underline disabled:opacity-60"
               >
                 Send a new code
               </button>
@@ -170,20 +185,13 @@ export default function LoginWithCode() {
                 setCode("");
                 setFieldErrors({});
               }}
-              className="ml-4 font-medium text-slate-900 underline"
+              className="font-semibold text-emerald-700 hover:underline"
             >
               Use a different email
             </button>
           </div>
         </>
       )}
-
-      <p className="mt-6 text-sm text-slate-600">
-        Prefer your password?{" "}
-        <Link to="/login" className="font-medium text-slate-900 underline">
-          Log in
-        </Link>
-      </p>
-    </section>
+    </AuthCard>
   );
 }

@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import FormField from "../components/FormField.jsx";
-import GoogleButton from "../components/GoogleButton.jsx";
+
 import { useAuth } from "../context/AuthContext.jsx";
-import { googleEnabled } from "../utils/google.js";
+
 import { handleApi } from "../utils/handleApi.js";
+import AuthCard from "../components/auth/AuthCard.jsx";
+import GoogleSection from "../components/auth/GoogleSection.jsx";
+import SubmitButton from "../components/SubmitButton.jsx";
 
 export default function Register() {
   const { user, register, signInWithGoogle } = useAuth();
@@ -71,68 +74,63 @@ export default function Register() {
     }
   }
 
-  return (
-    <section className="mx-auto max-w-sm">
-      <h1 className="text-2xl font-semibold">Create your account</h1>
+    return (
+    <AuthCard
+      icon="register"
+      title="Create your account"
+      subtitle="Start watching your websites and APIs."
+      footer={
+        <p>
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-emerald-700 hover:underline"
+          >
+            Log in
+          </Link>
+        </p>
+      }
+    >
+      <div className="space-y-4">
+        <GoogleSection onCredential={handleGoogle} disabled={submitting} />
 
-      {googleEnabled ? (
-        <div className="mt-6 space-y-4">
-          <GoogleButton onCredential={handleGoogle} disabled={submitting} />
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs text-slate-500">or</span>
-            <span className="h-px flex-1 bg-slate-200" />
-          </div>
-        </div>
-      ) : null}
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <FormField
-          id="name"
-          label="Name"
-          type="text"
-          autoComplete="name"
-          required
-          value={form.name}
-          onChange={handleChange}
-          error={fieldErrors.name}
-        />
-        <FormField
-          id="email"
-          label="Email"
-          type="email"
-          autoComplete="email"
-          required
-          value={form.email}
-          onChange={handleChange}
-          error={fieldErrors.email}
-        />
-        <FormField
-          id="password"
-          label="Password"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={form.password}
-          onChange={handleChange}
-          error={fieldErrors.password}
-          hint="At least 8 characters, with an uppercase letter, a lowercase letter and a special character."
-        />
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
-        >
-          {submitting ? "Creating account..." : "Register"}
-        </button>
-      </form>
-
-      <p className="mt-4 text-sm text-slate-600">
-        Already have an account?{" "}
-        <Link to="/login" className="font-medium text-slate-900 underline">
-          Log in
-        </Link>
-      </p>
-    </section>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField
+            id="name"
+            label="Name"
+            type="text"
+            autoComplete="name"
+            required
+            value={form.name}
+            onChange={handleChange}
+            error={fieldErrors.name}
+          />
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            required
+            value={form.email}
+            onChange={handleChange}
+            error={fieldErrors.email}
+          />
+          <FormField
+            id="password"
+            label="Password"
+            type="password"
+            autoComplete="new-password"
+            required
+            value={form.password}
+            onChange={handleChange}
+            error={fieldErrors.password}
+            hint="At least 8 characters, with an uppercase letter, a lowercase letter and a special character."
+          />
+          <SubmitButton loading={submitting} loadingText="Creating account...">
+            Register
+          </SubmitButton>
+        </form>
+      </div>
+    </AuthCard>
   );
 }

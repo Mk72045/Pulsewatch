@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { MONITOR_INTERVALS } from "../utils/constants.js";
 import FormField from "./FormField.jsx";
+import NavIcon from "./navbar/NavIcon.jsx";
+import SubmitButton from "./SubmitButton.jsx";
 
 // Used for both adding and editing. `initial` is set only when editing.
 // onSubmit must return the handleApi result, so this form can show field errors.
@@ -46,10 +48,15 @@ export default function MonitorForm({
     }
   }
 
+    // Same look as FormField: green focus, red border when the backend complains.
+  const selectStyle = fieldErrors.intervalMinutes
+    ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+    : "border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-emerald-200";
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-lg border border-slate-200 bg-white p-4"
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
     >
       <FormField
         id="name"
@@ -58,6 +65,7 @@ export default function MonitorForm({
         required
         maxLength={60}
         placeholder="My website"
+        hint="A short name to recognise this monitor."
         value={form.name}
         onChange={handleChange}
         error={fieldErrors.name}
@@ -68,6 +76,7 @@ export default function MonitorForm({
         type="url"
         required
         placeholder="https://example.com"
+        hint="The address Pulsewatch will check, starting with https://"
         value={form.url}
         onChange={handleChange}
         error={fieldErrors.url}
@@ -80,41 +89,60 @@ export default function MonitorForm({
         >
           Check every
         </label>
-        <select
-          id="intervalMinutes"
-          name="intervalMinutes"
-          value={form.intervalMinutes}
-          onChange={handleChange}
-          className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
-        >
-          {MONITOR_INTERVALS.map((minutes) => (
-            <option key={minutes} value={minutes}>
-              {minutes} {minutes === 1 ? "minute" : "minutes"}
-            </option>
-          ))}
-        </select>
+        <div className="relative mt-1.5">
+          <select
+            id="intervalMinutes"
+            name="intervalMinutes"
+            value={form.intervalMinutes}
+            onChange={handleChange}
+            aria-invalid={fieldErrors.intervalMinutes ? "true" : undefined}
+            aria-describedby="intervalMinutes-message"
+            className={`w-full appearance-none rounded-lg border bg-white py-2.5 pl-3 pr-10 text-base text-slate-900 transition-colors focus:outline-none focus:ring-2 sm:text-sm ${selectStyle}`}
+          >
+            {MONITOR_INTERVALS.map((minutes) => (
+              <option key={minutes} value={minutes}>
+                {minutes} {minutes === 1 ? "minute" : "minutes"}
+              </option>
+            ))}
+          </select>
+          <NavIcon
+            name="chevron-down"
+            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+          />
+        </div>
         {fieldErrors.intervalMinutes ? (
-          <p className="mt-1 text-xs text-red-600">
+          <p
+            id="intervalMinutes-message"
+            className="mt-1.5 text-xs font-medium text-red-600"
+          >
             {fieldErrors.intervalMinutes}
           </p>
-        ) : null}
+        ) : (
+          <p
+            id="intervalMinutes-message"
+            className="mt-1.5 text-xs text-slate-500"
+          >
+            How often Pulsewatch checks this address.
+          </p>
+        )}
       </div>
 
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
-        >
-          {submitting ? "Saving..." : submitLabel}
-        </button>
+      {/* On phones the buttons stack with the main action on top. */}
+      <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-100"
+          className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
         >
           Cancel
         </button>
+        <SubmitButton
+          loading={submitting}
+          loadingText="Saving..."
+          className="sm:w-auto sm:px-6"
+        >
+          {submitLabel}
+        </SubmitButton>
       </div>
     </form>
   );
