@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useConfirm } from "../context/ConfirmContext.jsx";
 import { handleApi } from "../utils/handleApi.js";
 import Navbar from "./navbar";
+import Footer from "./footer";
 
 // Shared frame for every page. Outlet is where the matched page is drawn.
 export default function Layout() {
@@ -32,12 +33,13 @@ export default function Layout() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    return (
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
       <Navbar user={user} handleLogout={handleLogout} />
-      <main className="mx-auto max-w-3xl px-4 py-8">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
         <Outlet />
       </main>
+      <Footer user={user} />
     </div>
   );
 }
