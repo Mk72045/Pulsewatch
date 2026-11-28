@@ -35,9 +35,9 @@ export default function Home() {
         Know when your site goes down
       </h1>
       <p className="mt-2 max-w-xl text-slate-600">
-        Pulsewatch checks your websites and APIs on a schedule. Two failed checks
-        in a row open an incident and send you an email and a Telegram message.
-        When the site recovers, the incident closes by itself.
+        Pulsewatch checks your websites and APIs on a schedule. Two failed
+        checks in a row open an incident and send you an email and a Telegram
+        message. When the site recovers, the incident closes by itself.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -60,9 +60,7 @@ export default function Home() {
       <div className="mt-8 rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-medium">System status</h2>
 
-        {error ? (
-          <p className="mt-2 text-sm text-red-700">{error}</p>
-        ) : null}
+        {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
 
         {!health && !error ? (
           <p className="mt-2 text-sm text-slate-500">Checking...</p>

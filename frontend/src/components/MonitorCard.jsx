@@ -39,7 +39,13 @@ function describeCheck(monitor) {
 
 // One monitor in the list. It only shows data. The page decides what
 // Pause and Delete do. Edit and Details are links.
-export default function MonitorCard({ monitor, summary, busy, onToggle, onDelete }) {
+export default function MonitorCard({
+  monitor,
+  summary,
+  busy,
+  onToggle,
+  onDelete,
+}) {
   const unit = monitor.intervalMinutes === 1 ? "minute" : "minutes";
   const check = describeCheck(monitor);
 

@@ -137,8 +137,14 @@ export default function MonitorDetail() {
   if (status === "error") {
     return (
       <div>
-        <LoadError message={loadError} onRetry={() => setReloadKey(reloadKey + 1)} />
-        <Link to="/dashboard" className="mt-4 inline-block text-sm text-slate-600 hover:underline">
+        <LoadError
+          message={loadError}
+          onRetry={() => setReloadKey(reloadKey + 1)}
+        />
+        <Link
+          to="/dashboard"
+          className="mt-4 inline-block text-sm text-slate-600 hover:underline"
+        >
           Back to dashboard
         </Link>
       </div>
@@ -155,7 +161,9 @@ export default function MonitorDetail() {
           >
             ← Dashboard
           </Link>
-          <h1 className="mt-2 truncate text-2xl font-semibold">{monitor.name}</h1>
+          <h1 className="mt-2 truncate text-2xl font-semibold">
+            {monitor.name}
+          </h1>
           <p className="truncate text-sm text-slate-600">{monitor.url}</p>
         </div>
         <StatusBadge monitor={monitor} />
@@ -191,9 +199,13 @@ export default function MonitorDetail() {
         />
         <StatCard
           label="Last checked"
-          value={monitor.lastCheckedAt ? timeAgo(monitor.lastCheckedAt) : "Never"}
+          value={
+            monitor.lastCheckedAt ? timeAgo(monitor.lastCheckedAt) : "Never"
+          }
           hint={
-            monitor.lastStatusCode ? `HTTP ${monitor.lastStatusCode}` : undefined
+            monitor.lastStatusCode
+              ? `HTTP ${monitor.lastStatusCode}`
+              : undefined
           }
         />
         <StatCard
@@ -215,7 +227,11 @@ export default function MonitorDetail() {
       <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-medium">Response time</h2>
-          <div className="flex gap-1" role="group" aria-label="Chart time range">
+          <div
+            className="flex gap-1"
+            role="group"
+            aria-label="Chart time range"
+          >
             {RANGES.map((option) => (
               <button
                 key={option.key}
@@ -245,7 +261,10 @@ export default function MonitorDetail() {
         ) : null}
 
         {historyStatus === "ready" && history ? (
-          <ResponseChart points={history.points} spanHours={SPAN_HOURS[range]} />
+          <ResponseChart
+            points={history.points}
+            spanHours={SPAN_HOURS[range]}
+          />
         ) : null}
       </div>
     </section>

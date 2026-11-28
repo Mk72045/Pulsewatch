@@ -9,6 +9,7 @@ import LoginWithCode from "./pages/LoginWithCode.jsx";
 import NewMonitor from "./pages/NewMonitor.jsx";
 import MonitorDetail from "./pages/MonitorDetail.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Profile from "./pages/Profile.jsx";
 import PublicStatus from "./pages/PublicStatus.jsx";
 import Register from "./pages/Register.jsx";
 import Settings from "./pages/Settings.jsx";
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/monitors/:id" element={<MonitorDetail />} />
           <Route path="/monitors/:id/edit" element={<EditMonitor />} />
           <Route path="/incidents" element={<Incidents />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
         {/* Public: no login, so it sits outside ProtectedRoute. */}

@@ -25,7 +25,8 @@ function niceCeiling(value) {
 
   const magnitude = 10 ** Math.floor(Math.log10(value));
   const normalised = value / magnitude;
-  const step = normalised <= 1 ? 1 : normalised <= 2 ? 2 : normalised <= 5 ? 5 : 10;
+  const step =
+    normalised <= 1 ? 1 : normalised <= 2 ? 2 : normalised <= 5 ? 5 : 10;
 
   return step * magnitude;
 }
@@ -112,7 +113,9 @@ export default function ResponseChart({ points, spanHours }) {
     CHART_BOTTOM - (value / yMax) * (CHART_BOTTOM - CHART_TOP);
 
   const segments = buildSegments(points, xOf, yOf);
-  const gridValues = [0, 0.25, 0.5, 0.75, 1].map((part) => Math.round(yMax * part));
+  const gridValues = [0, 0.25, 0.5, 0.75, 1].map((part) =>
+    Math.round(yMax * part),
+  );
 
   const firstPoint = points[0];
   const middlePoint = points[Math.floor(total / 2)];
@@ -216,7 +219,8 @@ export default function ResponseChart({ points, spanHours }) {
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-sm bg-emerald-500" /> All checks passed
+          <span className="h-2 w-2 rounded-sm bg-emerald-500" /> All checks
+          passed
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-sm bg-amber-400" /> Some failed
@@ -227,7 +231,9 @@ export default function ResponseChart({ points, spanHours }) {
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-sm bg-slate-200" /> No checks
         </span>
-        <span className="ml-auto text-slate-500">Y axis: response time in ms</span>
+        <span className="ml-auto text-slate-500">
+          Y axis: response time in ms
+        </span>
       </div>
     </div>
   );

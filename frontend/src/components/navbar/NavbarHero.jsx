@@ -4,6 +4,7 @@ import Brand from "./Brand.jsx";
 import LogoutButton from "./LogoutButton.jsx";
 import MenuIcon from "./MenuIcon.jsx";
 import NavItem from "./NavItem.jsx";
+import ProfileMenu from "./ProfileMenu.jsx";
 
 // "paths" lists every URL start that should light this link up.
 // Monitor pages live under /monitors, but they belong to the Dashboard.
@@ -20,6 +21,11 @@ const privateLinks = [
     paths: ["/incidents"],
     icon: "incidents",
   },
+];
+
+// Shown in the profile dropdown (tablet, desktop) and in the mobile drawer.
+const accountLinks = [
+  { label: "Profile", to: "/profile", paths: ["/profile"], icon: "profile" },
   {
     label: "Settings",
     to: "/settings",
@@ -39,9 +45,11 @@ const publicLinks = [
   },
 ];
 
-const Navbar = ({ user, handleLogout }) => {
+const NavbarHero = ({ user, handleLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const links = user ? privateLinks : publicLinks;
+
+  const barLinks = user ? privateLinks : publicLinks;
+  const drawerLinks = user ? [...privateLinks, ...accountLinks] : publicLinks;
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -61,12 +69,12 @@ const Navbar = ({ user, handleLogout }) => {
             <Brand />
           </Link>
 
-          {/* Tablet and desktop: links in a row */}
+          {/* Tablet and desktop: links in a row, then the profile menu */}
           <nav
             aria-label="Main"
             className="hidden items-center gap-1 md:flex lg:gap-2"
           >
-            {links.map((link) => (
+            {barLinks.map((link) => (
               <NavItem
                 key={link.to}
                 to={link.to}
@@ -77,7 +85,13 @@ const Navbar = ({ user, handleLogout }) => {
                 {link.label}
               </NavItem>
             ))}
-            {user && <LogoutButton onClick={handleLogout} />}
+            {user && (
+              <ProfileMenu
+                user={user}
+                links={accountLinks}
+                onLogout={handleLogout}
+              />
+            )}
           </nav>
 
           {/* Mobile: opens the drawer */}
@@ -128,7 +142,7 @@ const Navbar = ({ user, handleLogout }) => {
               Menu
             </p>
 
-            {links.map((link) => (
+            {drawerLinks.map((link) => (
               <NavItem
                 key={link.to}
                 to={link.to}
@@ -158,4 +172,4 @@ const Navbar = ({ user, handleLogout }) => {
   );
 };
 
-export default Navbar;
+export default NavbarHero;

@@ -56,7 +56,9 @@ export default function Dashboard() {
   // show "No checks in 24h", which is honest and does not break the page.
   useEffect(() => {
     async function loadSummary() {
-      const result = await handleApi(fetchMonitorsSummary, { showError: false });
+      const result = await handleApi(fetchMonitorsSummary, {
+        showError: false,
+      });
 
       if (result.ok) {
         setSummaryById(
