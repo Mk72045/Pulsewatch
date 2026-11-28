@@ -2,7 +2,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfirm } from "../context/ConfirmContext.jsx";
 import { handleApi } from "../utils/handleApi.js";
-import Navbar from "./Navbar";
+import Navbar from "./navbar";
 
 // Shared frame for every page. Outlet is where the matched page is drawn.
 export default function Layout() {
